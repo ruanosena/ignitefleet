@@ -1,5 +1,10 @@
+import { InicioCabecalho } from "../../components/InicioCabecalho";
 import { Conteiner } from "./estilos";
 
 export function Inicio() {
-	return <Conteiner></Conteiner>;
+	return (
+		<Conteiner>
+			<InicioCabecalho />
+		</Conteiner>
+	);
 }
