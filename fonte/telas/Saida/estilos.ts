@@ -7,5 +7,7 @@ export const Conteiner = styled.View`
 
 export const Conteudo = styled.View`
 	flex: 1;
-	padding: 0 32px;
+	gap: 16px;
+	padding: 32px;
+	margin-top: 16px;
 `;
