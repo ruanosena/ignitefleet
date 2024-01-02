@@ -13,8 +13,8 @@ export class Historico extends Realm.Object<Historico> {
 	placa!: string;
 	descricao!: string;
 	status!: string;
-	criado_em!: string;
-	atualizado_em!: string;
+	criado_em!: Date;
+	atualizado_em!: Date;
 
 	static gerar({ usuario_id, descricao, placa }: GerarProps) {
 		return {

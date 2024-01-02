@@ -10,14 +10,14 @@ type Props = TouchableOpacityProps & {
 export function StatusCarro({ placa = null, ...rest }: Props) {
 	const tema = useTheme();
 
-	const iconeNome = placa ? "key" : "car";
+	const iconeNome = placa ? "car-outline" : "key-outline";
 	const mensagem = placa ? `Veículo ${placa} em uso. ` : `Nenhum veículo em uso. `;
 	const status = placa ? "chegada" : "saída";
 
 	return (
 		<Conteiner {...rest}>
 			<CaixaIcone>
-				<MaterialCommunityIcons name={iconeNome} size={32} color={tema.COLORS.BRAND_LIGHT} />
+				<MaterialCommunityIcons name={iconeNome} size={52} color={tema.COLORS.BRAND_LIGHT} />
 			</CaixaIcone>
 
 			<Mensagem>
