@@ -6,7 +6,6 @@ export const Conteiner = styled.View`
 	flex-direction: row;
 	justify-content: space-between;
 	background-color: ${({ theme }) => theme.COLORS.GRAY_700};
-	z-index: 1;
 `;
 
 export const Titulo = styled.Text`

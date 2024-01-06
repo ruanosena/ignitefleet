@@ -3,16 +3,19 @@ import { Alert } from "react-native";
 import { BSON } from "realm";
 import { useObject, useRealm } from "../../libs/realm";
 import { Historico } from "../../libs/realm/schemas/Historico";
-import { Conteiner, Conteudo, Descricao, Placa, Rodape, Rotulo } from "./estilos";
+import { Conteiner, Conteudo, Descricao, MensagemAsync, Placa, Rodape, Rotulo } from "./estilos";
 import { Cabecalho } from "../../components/Cabecalho";
 import { Botao } from "../../components/Botao";
 import { BotaoIcone } from "../../components/BotaoIcone";
+import { useEffect, useState } from "react";
+import { obterTimestampUltimaSinc } from "../../libs/asyncStorage/syncStorage";
 
 type RotaParamsProps = {
 	id: string;
 };
 
 export function Chegada() {
+	const [dadosNaoSinc, defDadosNaoSinc] = useState(false);
 	const rota = useRoute();
 	const { id } = rota.params as RotaParamsProps;
 
@@ -62,6 +65,12 @@ export function Chegada() {
 		}
 	}
 
+	useEffect(() => {
+		obterTimestampUltimaSinc().then((ultimaSinc) =>
+			defDadosNaoSinc(historico!.atualizado_em.getTime() > ultimaSinc)
+		);
+	}, []);
+
 	return (
 		<Conteiner>
 			<Cabecalho titulo={titulo} />
@@ -76,6 +85,12 @@ export function Chegada() {
 					<BotaoIcone icone="close" onPress={lidarRemoverUsoVeiculo} />
 					<Botao onPress={lidarRegistroChegada}>Registrar chegada</Botao>
 				</Rodape>
+			)}
+
+			{dadosNaoSinc && (
+				<MensagemAsync>
+					Sincronização da {historico?.status == "partida" ? "partida" : "chegada"} pendente.
+				</MensagemAsync>
 			)}
 		</Conteiner>
 	);
