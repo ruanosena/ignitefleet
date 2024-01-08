@@ -1,3 +1,4 @@
+import Realm from "realm";
 import "react-native-get-random-values";
 import "./fonte/libs/dayjs";
 import { StatusBar } from "react-native";
