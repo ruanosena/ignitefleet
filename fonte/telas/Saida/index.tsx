@@ -5,6 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import {
 	useForegroundPermissions,
+	requestBackgroundPermissionsAsync,
 	watchPositionAsync,
 	LocationAccuracy,
 	LocationSubscription,
@@ -14,7 +15,7 @@ import { Botao } from "../../components/Botao";
 import { Cabecalho } from "../../components/Cabecalho";
 import { EntradaPlaca } from "../../components/EntradaPlaca";
 import { EntradaTextoArea } from "../../components/EntradaTextoArea";
-import { Conteiner, Conteudo, Mensagem } from "./estilos";
+import { Conteiner, Conteudo, ConteudoMensagem, Mensagem } from "./estilos";
 import { validarPlaca } from "../../utilitarios/validarPlaca";
 import { obterEnderecoLocal } from "../../utilitarios/obterEnderecoLocal";
 import { useRealm } from "../../libs/realm";
@@ -22,6 +23,8 @@ import { Historico } from "../../libs/realm/schemas/Historico";
 import { Carregando } from "../../components/Carregando";
 import { LocalInfo } from "../../components/LocalInfo";
 import { Mapa } from "../../components/Mapa";
+import { iniciarTarefaRastrear } from "../../tarefas/localPlanoFundoTarefa";
+import { abrirConfigs } from "../../utilitarios/abrirConfigs";
 
 export function Saida() {
 	const [placa, defPlaca] = useState("");
@@ -33,6 +36,7 @@ export function Saida() {
 
 	const [permissaoLocalPrimeiroPlano, requerirPermissaoLocalPrimeiroPlano] =
 		useForegroundPermissions();
+
 	const descricaoRef = useRef<TextInput>(null);
 	const placaRef = useRef<TextInput>(null);
 
@@ -40,7 +44,7 @@ export function Saida() {
 	const realm = useRealm();
 	const usuario = useUser();
 
-	function lidarRegistrarSaida() {
+	async function lidarRegistrarSaida() {
 		try {
 			if (!validarPlaca(placa)) {
 				placaRef.current?.focus();
@@ -56,15 +60,42 @@ export function Saida() {
 				);
 			}
 
+			if (!coordsAtual?.latitude || !coordsAtual?.longitude) {
+				return Alert.alert(
+					"Localização",
+					"Não foi possível obter a localização atual, tente novamente."
+				);
+			}
+
 			defEstaRegistrando(true);
+
+			const permissaoPlanoFundo = await requestBackgroundPermissionsAsync();
+
+			if (!permissaoPlanoFundo.granted) {
+				defEstaRegistrando(false);
+				return Alert.alert(
+					"Localização",
+					"É necessário permitir que o app tenha acesso a localização em segundo plano. Acesse as configurações do dispositivo e habilite 'Permitir o tempo todo'.",
+					[{ text: "Abrir configurações", onPress: abrirConfigs }]
+				);
+			}
+
+			iniciarTarefaRastrear();
 
 			realm.write(() => {
 				realm.create(
 					"Historico",
-					Historico.gerar({
+					Historico.generate({
 						usuario_id: usuario!.id,
 						placa: placa.toUpperCase(),
 						descricao,
+						coords: [
+							{
+								latitude: coordsAtual.latitude,
+								longitude: coordsAtual.longitude,
+								timestamp: new Date().getTime(),
+							},
+						],
 					})
 				);
 			});
@@ -111,10 +142,14 @@ export function Saida() {
 		return (
 			<Conteiner>
 				<Cabecalho titulo="Saída" />
-				<Mensagem>
-					Você precisa permitir o acesso a localização para utilizar essa funcionalidade. Por favor,
-					acesse as configurações do aplicativo para conceder essa permissão ao aplicativo.
-				</Mensagem>
+				<ConteudoMensagem>
+					<Mensagem>
+						Você precisa permitir o acesso a localização para utilizar essa funcionalidade. Por
+						favor, acesse as configurações do aplicativo para conceder essa permissão ao aplicativo.
+					</Mensagem>
+
+					<Botao onPress={abrirConfigs}>Abrir configurações</Botao>
+				</ConteudoMensagem>
 			</Conteiner>
 		);
 	}

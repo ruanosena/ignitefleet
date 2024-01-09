@@ -13,7 +13,7 @@ import { InicioCabecalho } from "../../components/InicioCabecalho";
 import { StatusCarro } from "../../components/StatusCarro";
 import { Conteiner, Conteudo, Rotulo, Titulo } from "./estilos";
 import { CartaoHistorico, CartaoHistoricoProps } from "../../components/CartaoHistorico";
-import { useUser } from "@realm/react";
+import { useUser, Realm } from "@realm/react";
 import { MensagemTopo } from "../../components/MensagemTopo";
 
 export function Inicio() {

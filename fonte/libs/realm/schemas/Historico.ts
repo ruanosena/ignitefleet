@@ -1,10 +1,11 @@
 import { Realm } from "@realm/react";
-import { ObjectSchema } from "realm";
+import { CoordsSchemaProps } from "./Coords";
 
 type GerarProps = {
 	usuario_id: string;
 	descricao: string;
 	placa: string;
+	coords: CoordsSchemaProps[];
 };
 
 export class Historico extends Realm.Object<Historico> {
@@ -12,22 +13,24 @@ export class Historico extends Realm.Object<Historico> {
 	usuario_id!: string;
 	placa!: string;
 	descricao!: string;
+	coords!: CoordsSchemaProps[];
 	status!: string;
 	criado_em!: Date;
 	atualizado_em!: Date;
 
-	static gerar({ usuario_id, descricao, placa }: GerarProps) {
+	static generate({ usuario_id, descricao, placa, coords }: GerarProps) {
 		return {
 			_id: new Realm.BSON.UUID(),
 			usuario_id,
 			descricao,
+			coords,
 			placa,
 			status: "partida",
 			criado_em: new Date(),
 			atualizado_em: new Date(),
 		};
 	}
-	static schema: ObjectSchema = {
+	static schema: Realm.ObjectSchema = {
 		name: "Historico",
 		primaryKey: "_id",
 
@@ -39,6 +42,10 @@ export class Historico extends Realm.Object<Historico> {
 			},
 			placa: "string",
 			descricao: "string",
+			coords: {
+				type: "list",
+				objectType: "Coords"
+			},
 			status: "string",
 			criado_em: "date",
 			atualizado_em: "date",
